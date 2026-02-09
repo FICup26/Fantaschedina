@@ -1,0 +1,1996 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Fantaschedina Survivor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module" src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Poppins:wght@400;700;900&display=swap');
+
+        :root {
+            --primary-gold: #D4AF37;
+            --soft-gold: #F1D279;
+            --deep-blue: #0A0F1B;
+            --glass-bg: rgba(25, 33, 50, 0.7);
+            --neon-green: #10B981;
+            --card-border: rgba(255, 255, 255, 0.08);
+        }
+
+        html, body {
+    /* Rimosso height: 100% che bloccava tutto */
+    min-height: 100vh; 
+    overflow-x: hidden;
+    overflow-y: auto; /* Fondamentale per lo scroll */
+    background-color: var(--deep-blue);
+    font-family: 'Inter', sans-serif;
+    color: #f8fafc;
+    -webkit-font-smoothing: antialiased;
+    -webkit-overflow-scrolling: touch;
+}
+
+
+        body {
+            background: radial-gradient(circle at top right, #1e293b, #0A0F1B 60%);
+            margin: 0;
+            padding: 0;
+        }
+
+        .font-poppins { font-family: 'Poppins', sans-serif; }
+
+        #main-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            max-width: 480px; margin: 0 auto;
+            height: 70px;
+            background: rgba(10, 15, 27, 0.85);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #main-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            max-width: 480px; margin: 0 auto;
+            height: calc(70px + env(safe-area-inset-bottom));
+            background: rgba(10, 15, 27, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--card-border);
+            z-index: 1000;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, var(--primary-gold), var(--soft-gold));
+            color: #1a1a1a;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .prediction-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            padding: 12px 0;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+
+        .prediction-btn-active {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+        }
+
+        .podium-bar {
+            border-radius: 12px 12px 4px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .gold-glow { text-shadow: 0 0 10px rgba(212, 175, 55, 0.5); color: var(--soft-gold); }
+
+       #content {
+    max-width: 480px;
+    margin: 0 auto;
+    /* Aumentato il padding bottom per non coprire il contenuto con la nav bar */
+    padding: 90px 16px 140px 16px; 
+    display: block;
+}
+
+/* Questa classe assicura che il regolamento nel modal sia scorrevole */
+.regolamento-scroll {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 10px;
+    display: block; /* Forza il comportamento block */
+}
+
+        /* Stile uniforme loghi */
+        .team-logo-container {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            margin: 0 auto;
+        }
+
+        .team-logo-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23D4AF37'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 16px;
+            padding-right: 32px !important;
+        }
+
+        /* Effetto click nav */
+        #main-nav button:active {
+            transform: scale(0.9);
+        }
+    
+/* --- MOTORE GRAFICO KIT ELITE PRO V2 (SAGOMA MORBIDA + 4 COLORI) --- */
+.kit-container-dashboard, .kit-mini-dashboard {
+    width: 70px;
+    height: 60px;
+    position: relative;
+    /* Sagoma arrotondata: maniche e fianchi meno netti */
+    clip-path: polygon(30% 0%, 70% 0%, 100% 18%, 92% 45%, 80% 40%, 80% 100%, 20% 100%, 20% 40%, 8% 45%, 0% 18%);
+    background-color: var(--c1);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+}
+
+.kit-container-dashboard::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    /* Texture tessuto e ombreggiatura per dare volume */
+    background: 
+        linear-gradient(to right, rgba(0,0,0,0.12) 20%, transparent 30%, transparent 70%, rgba(0,0,0,0.12) 80%),
+        linear-gradient(to bottom, rgba(255,255,255,0.15) 0%, transparent 25%, rgba(0,0,0,0.1) 95%);
+    z-index: 5;
+    pointer-events: none;
+}
+
+.kit-pattern-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 1;
+    z-index: 2;
+}
+
+/* --- LOGICA 15 MODELLI ELITE --- */
+.pattern-pieno { background: transparent; }
+.pattern-strisce-v { background: linear-gradient(90deg, transparent 50%, var(--c2) 50%); background-size: 20% 100%; }
+.pattern-strisce-o { background: linear-gradient(0deg, transparent 50%, var(--c2) 50%); background-size: 100% 20%; }
+.pattern-scacchi { background-image: conic-gradient(var(--c2) 90deg, transparent 90deg 180deg, var(--c2) 180deg 270deg, transparent 270deg); background-size: 30px 30px; }
+.pattern-croce { background: linear-gradient(90deg, transparent 42%, var(--c2) 42%, var(--c2) 58%, transparent 58%), linear-gradient(0deg, transparent 40%, var(--c2) 40%, var(--c2) 55%, transparent 55%); }
+.pattern-diagonale { background: repeating-linear-gradient(45deg, transparent, transparent 15px, var(--c2) 15px, var(--c2) 30px); }
+.pattern-quarti { background: linear-gradient(90deg, var(--c2) 50%, transparent 50%), linear-gradient(0deg, var(--c2) 50%, transparent 50%); }
+.pattern-pinstripe { background: linear-gradient(90deg, transparent 90%, var(--c2) 90%); background-size: 10% 100%; }
+.pattern-cerchi { background: radial-gradient(circle, var(--c2) 30%, transparent 31%); background-size: 20px 20px; }
+.pattern-mimetico { background: radial-gradient(circle at 20% 30%, var(--c2) 20%, transparent 25%), radial-gradient(circle at 80% 70%, var(--c3) 15%, transparent 20%), radial-gradient(circle at 50% 50%, var(--c4) 10%, transparent 15%); }
+.pattern-sfumato { background: linear-gradient(to bottom, var(--c1), var(--c2), var(--c3)); }
+.pattern-rombi { background: conic-gradient(from 120deg at 50% 50%, var(--c2) 60deg, transparent 0), conic-gradient(from 300deg at 50% 50%, var(--c3) 60deg, transparent 0); background-size: 25px 40px; }
+.pattern-fulmine { background: linear-gradient(110deg, transparent 40%, var(--c4) 40%, var(--c4) 45%, var(--c2) 45%, var(--c2) 55%, var(--c3) 55%, var(--c3) 60%, transparent 60%); }
+.pattern-v-shape { background: conic-gradient(from 150deg at 50% 0%, var(--c2) 60deg, transparent 0), conic-gradient(from 150deg at 50% 25%, var(--c3) 60deg, transparent 0); }
+.pattern-onde { background: radial-gradient(circle at 50% 100%, var(--c2) 20%, var(--c3) 21%, var(--c3) 40%, transparent 41%); background-size: 30px 20px; }
+
+
+
+/* Gestione testo e contenitori */
+.team-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 0; /* Permette il truncate */
+    padding: 8px 4px;
+}
+
+.text-fit {
+    font-size: clamp(8px, 2vw, 10px);
+    line-height: 1.2;
+    text-align: center;
+    width: 100%;
+}
+
+/* Animazione immagine contenuta */
+.hero-container {
+    height: 140px; /* Ridotta l'altezza dell'immagine */
+    overflow: hidden;
+    position: relative;
+    border-radius: 1rem;
+}
+
+.hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.4;
+    transform: scale(1.1);
+    animation: slow-pan 10s infinite ease-in-out;
+}
+
+.stat-box {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 8px;
+    text-align: center;
+    flex: 1;
+}
+/* Mini Kit specifico per la Dashboard accanto al nome */
+.kit-mini-dashboard {
+    width: 45px;
+    height: 38px;
+    position: relative;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 20%, 85% 45%, 75% 35%, 75% 100%, 25% 100%, 25% 35%, 15% 45%, 0% 20%);
+    background-color: var(--c1);
+    flex-shrink: 0; /* Impedisce che si schiacci */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.kit-mini-dashboard::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right,<!-- <!-- <!--  --> --> --> rgba(0,0,0,0.1) 25%, transparent 30%, transparent 70%, rgba(0,0,0,0.1) 75%);
+    z-index: 5;
+}
+.energy-container {
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.3) 100%);
+    border-radius: 24px;
+    position: relative;
+    border: 1px solid var(--card-border);
+}
+
+.energy-bar-bg {
+    height: 12px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.energy-bar-fill {
+    height: 100%;
+    /* Rimosso background fisso per farlo gestire dal JS (barColor) */
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+    transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* --- EFFETTO GLOSSY (IL RIFLESSO) --- */
+.energy-bar-fill::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent
+    );
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    0% { left: -100%; }
+    20% { left: 100%; }
+    100% { left: 100%; }
+}
+
+.login-title {
+    font-size: 1.8rem !important; /* Dimensione fissa e contenuta */
+    line-height: 1.1;
+    letter-spacing: 0.05em; /* Un po' di respiro tra le lettere */
+    text-align: center;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+
+/* Effetto Magic Mode */
+.magic-mode-active {
+    background: radial-gradient(circle at top, #2e1065, #0A0F1B 70%) !important;
+    transition: all 0.8s ease;
+}
+
+.magic-card {
+    border-color: #a855f7 !important;
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+    background: rgba(168, 85, 247, 0.05) !important;
+}
+
+.magic-btn-active {
+    background: linear-gradient(135deg, #a855f7, #6366f1) !important;
+    color: white !important;
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+    border: none !important;
+}
+
+@keyframes sparkle-float {
+    0% { transform: translateY(0) scale(1); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateY(-20px) scale(1.2); opacity: 0; }
+}
+
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #eab308;
+    border-radius: 10px;
+}
+
+/* Fix per evitare che il badge copra il nome */
+.team-header-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap; /* Permette al badge di andare a capo se il nome è troppo lungo */
+    max-width: 100%;
+}
+
+    </style>
+</head>
+<body>
+
+    <header id="main-header" class="hidden">
+        <div class="flex flex-col items-center">
+            <span class="text-[10px] tracking-[0.3em] font-light text-gray-400 uppercase">Fanta</span>
+            <span class="text-xl font-black font-poppins gold-glow tracking-tight uppercase">Schedina</span>
+        </div>
+    </header>
+
+    <nav id="main-nav" class="hidden">
+        <div class="flex justify-around items-center h-full max-w-md mx-auto px-4">
+            <button onclick="changeView('home_dashboard')" id="nav-home_dashboard" class="flex flex-col items-center gap-1 text-[9px] font-black uppercase text-gray-500 transition-all">
+                <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
+                Home
+            </button>
+            
+            <button onclick="changeView('matches')" id="nav-matches" class="flex flex-col items-center gap-1 text-[9px] font-black uppercase text-gray-500 transition-all">
+                <i data-lucide="gamepad-2" class="h-5 w-5"></i>
+                Gioca
+            </button>
+
+            <button onclick="changeView('sfide')" id="nav-sfide" class="flex flex-col items-center gap-1 text-[9px] font-black uppercase text-gray-500 transition-all">
+                <div class="p-2 bg-yellow-500/10 rounded-xl mb-[-4px] border border-yellow-500/20">
+                    <i data-lucide="swords" class="h-5 w-5 text-yellow-500"></i>
+                </div>
+                Sfide
+            </button>
+
+<button onclick="changeView('kit_room')" id="nav-kit_room" class="flex flex-col items-center gap-1 text-[9px] font-black uppercase text-gray-500 transition-all">
+    <i data-lucide="shirt" class="h-5 w-5"></i>
+    Kit
+</button>
+
+
+            <button onclick="changeView('ranking')" id="nav-ranking" class="flex flex-col items-center gap-1 text-[9px] font-black uppercase text-gray-500 transition-all">
+                <i data-lucide="trophy" class="h-5 w-5"></i>
+                Ranking
+            </button>
+
+<button onclick="changeView('chat')" id="nav-chat" class="flex flex-col items-center gap-1 text-[9px] font-black uppercase text-gray-500 transition-all">
+    <i data-lucide="message-square" class="h-5 w-5"></i>
+    Chat
+</button>
+
+
+            <button onclick="changeView('my_bets')" id="nav-my_bets" class="flex flex-col items-center gap-1 text-[9px] font-black uppercase text-gray-500 transition-all">
+                <i data-lucide="user" class="h-5 w-5"></i>
+                Voti
+            </button>
+        </div>
+    </nav>
+
+    <div id="app">
+        <main id="content"></main>
+    </div>
+
+    <div id="custom-modal" class="hidden fixed inset-0 z-[3000] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" onclick="closeModal()">
+        <div class="glass-card w-full max-w-xs p-6 border-t-4 border-yellow-500" onclick="event.stopPropagation()">
+            <div id="modal-icon" class="mb-4 text-yellow-500 flex justify-center"></div>
+            <h3 id="modal-title" class="text-lg font-bold text-white mb-2 font-poppins text-center uppercase tracking-tighter"></h3>
+            <p id="modal-message" class="text-gray-400 text-sm mb-6 text-center italic"></p>
+            <button onclick="closeModal()" class="w-full py-3 btn-premium rounded-xl">Ho Capito</button>
+        </div>
+    </div>
+
+
+    <script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbz6dHjw4TcyC82CWCYym6KsBRnpHrcBZOGTrj_4p5W7aZMqb4_GhZwQxNnVP3wMS0INtw/exec";
+    const TOTAL_GIORNATE = 38;
+    const GOLD = "#D4AF37";
+  
+    const LOGHI = {
+        "Atalanta": "https://i.ibb.co/HLfTYZx7/Logo-Atalanta-Bergamo-svg.png",
+        "Bologna": "https://i.ibb.co/jkM5SPbz/Bologna-F-C-1909-logo-svg.png",
+        "Cagliari": "https://i.ibb.co/PZfv5NnX/Logo-Cagliari.png",
+        "Como": "https://i.ibb.co/qYhwMQzH/Logo-Como-1907-2019.png",
+        "Cremonese": "https://i.ibb.co/mCKdTQkH/Unione-Sportiva-Cremonese-logo-svg-1.png",
+        "Fiorentina": "https://i.ibb.co/4gZ5jDc5/ACF-Fiorentina-logo-Italy-2022-svg.png",
+        "Genoa": "https://i.ibb.co/Z6RcxTWw/Genoa-Cricket-and-Football-Club-logo-svg.png",
+        "Inter": "https://i.ibb.co/F4C4vHjc/FC-Internazionale-Milano-2021-svg-1.png",
+        "Juventus": "https://i.ibb.co/xtkRyBJp/Juventus-FC-2017-logo.png",
+        "Lazio": "https://i.ibb.co/840BWT8m/Stemma-della-Societ-Sportiva-Lazio-svg.png",
+        "Lecce": "https://i.ibb.co/SDQ0zy8s/US-Lecce-Stemma-svg.png",
+        "Milan": "https://i.ibb.co/B2V1c6K3/Logo-of-AC-Milan-svg.png",
+        "Napoli": "https://i.ibb.co/DgmL7YGb/SSC-Neapel-svg.png",
+        "Parma": "https://i.ibb.co/bgMLjHdf/Logo-Parma-Calcio-1913-adozione-2016-svg.png",
+        "Pisa": "https://i.ibb.co/35bNsCSV/Logo-Pisa-SC-2017-svg.png",
+        "Roma": "https://i.ibb.co/rRkxM7Bf/AS-Roma-Logo-2017-svg-1.png",
+        "Sassuolo": "https://i.ibb.co/Xrj8PYjx/Ussassuolostemma-svg.png",
+        "Torino": "https://i.ibb.co/v62Bw8qY/Torino-FC-logo-svg.png",
+        "Udinese": "https://i.ibb.co/5xhRTYmp/Logo-Udinese-Calcio-svg.png",
+        "Verona": "https://i.ibb.co/k6yWJsZf/Hellas-Verona-FC-logo-2020-svg.png"
+    };
+let chatInterval = null;
+    let appState = {
+    isLoggedIn: false,
+selectedSfideGiornata: 1,
+    currentView: 'home_dashboard',
+    currentGiornata: 1,
+    selectedGiornata: 1,
+    selectedRankingTab: 'globale',
+    selectedRankingGiornata: 1,
+    matches: [],
+    teamName: localStorage.getItem('fantaTeamName') || '',
+    predictions: {},
+    dailyRanking: [],
+    lives: 50,
+    isChallengeMode: false,
+    selectedOpponent: '',
+    isMagicMode: false // Aggiunta questa riga
+
+};
+
+
+
+function getUserLevel(points) {
+    if (points < 100) return { nome: "PRINCIPIANTE", color: "text-gray-400" };
+    if (points < 300) return { nome: "DILETTANTE", color: "text-blue-400" };
+    if (points < 600) return { nome: "ESPERTO", color: "text-green-400" };
+    if (points < 1000) return { nome: "VETERANO", color: "text-purple-400" };
+    if (points < 1500) return { nome: "ELITE", color: "text-yellow-500" };
+    return { nome: "LEGGENDA", color: "text-red-500 animate-pulse" };
+}
+
+    // --- UTILS ---
+    function fetchData(params) {
+        return new Promise((resolve, reject) => {
+            const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+            const url = `${GAS_URL}?${params}&callback=${callbackName}`;
+            window[callbackName] = (data) => {
+                delete window[callbackName];
+                script.remove();
+                resolve(data);
+            };
+            const script = document.createElement('script');
+            script.src = url;
+            script.onerror = () => reject(new Error("Connessione fallita"));
+            document.head.appendChild(script);
+        });
+    }
+
+    function showModal(title, message, icon = 'alert-circle') {
+        document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').innerHTML = message;
+        document.getElementById('modal-icon').innerHTML = `<i data-lucide="${icon}" class="h-10 w-10"></i>`;
+        document.getElementById('custom-modal').classList.remove('hidden');
+        lucide.createIcons();
+    }
+
+    function closeModal() { document.getElementById('custom-modal').classList.add('hidden'); }
+
+    function renderLoader(msg, showLink = false) {
+    let linkHtml = showLink ? `
+        <button onclick="changeView('matches')" class="group relative mt-8 px-8 py-3 overflow-hidden rounded-xl bg-yellow-500 transition-all active:scale-95">
+            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+            <span class="relative text-black font-black text-[11px] uppercase tracking-[0.2em] flex items-center gap-2">
+                Schiera Pronostici <i data-lucide="play" class="h-3 w-3 fill-black"></i>
+            </span>
+        </button>` : '';
+
+    return `
+        <div class="flex flex-col items-center justify-center py-20 animate-in fade-in duration-700">
+            <div class="relative w-24 h-24 mb-8">
+                <div class="absolute inset-0 rounded-full border-4 border-yellow-500/10 border-t-yellow-500 animate-[spin_1.5s_linear_infinite]"></div>
+                <div class="absolute inset-2 rounded-full border-2 border-blue-500/10 border-b-blue-400 animate-[spin_2s_linear_infinite_reverse]"></div>
+                <div class="absolute inset-0 m-auto w-3 h-3 bg-yellow-500 rounded-full shadow-[0_0_15px_#D4AF37] animate-pulse"></div>
+            </div>
+
+            <div class="text-center px-8">
+                <h3 class="text-white font-black text-xs uppercase tracking-[0.3em] mb-3 animate-pulse">Sincronizzazione...</h3>
+                <p class="text-gray-500 text-[10px] font-bold uppercase leading-relaxed max-w-[250px] mx-auto">
+                    ${msg}
+                </p>
+                ${linkHtml}
+            </div>
+        </div>`;
+}
+
+
+
+    // --- NAV LOGIC ---
+    function changeView(view) {
+    if (!appState.isLoggedIn && view !== 'login') return renderLoginView();
+    
+    // STOP del timer chat se l'utente cambia pagina
+    if (chatInterval) {
+        clearInterval(chatInterval);
+        chatInterval = null;
+    }
+    
+    appState.currentView = view;
+    window.scrollTo(0, 0);
+    renderView();
+    updateNavBar(view);
+}
+
+
+    function updateNavBar(view) {
+        document.querySelectorAll('#main-nav button').forEach(btn => {
+            const isActive = btn.id === `nav-${view}`;
+            btn.style.color = isActive ? GOLD : '#64748b';
+            const icon = btn.querySelector('i');
+            if (icon) icon.style.stroke = isActive ? GOLD : '#64748b';
+        });
+        lucide.createIcons();
+    }
+
+function renderView() {
+        const content = document.getElementById('content');
+        if (!appState.isLoggedIn) return renderLoginView();
+        
+        switch(appState.currentView) {
+            case 'home_dashboard': renderHome(); break;
+            case 'matches': renderMatches(); break;
+            case 'sfide': renderSfide(); break;
+            case 'ranking': renderRanking(); break;
+            case 'my_bets': renderMyBets(); break;
+            case 'chat': renderChat(); break; 
+case 'kit_room': renderKitRoom(); break;
+
+        }
+    }
+
+// --- LOGIN FIXATO ---
+function renderLoginView() {
+    document.getElementById('main-header').classList.add('hidden');
+    document.getElementById('main-nav').classList.add('hidden');
+    document.getElementById('content').innerHTML = `
+        <div class="min-h-[70vh] flex flex-col justify-center px-8"> 
+            <div class="text-center mb-6">
+                <p class="text-[9px] tracking-[0.4em] text-yellow-500/60 font-black uppercase mb-1"></p>
+                
+                <h1 class="text-2xl font-black font-poppins gold-glow uppercase tracking-tight">
+                    Fantaschedina
+                </h1>
+                
+                <p class="text-[8px] tracking-[0.2em] text-gray-500 uppercase font-bold opacity-50">Survivor Edition</p>
+            </div>
+
+            <div class="glass-card p-6 border-t border-white/10">
+                <div class="space-y-4">
+                    <input type="text" id="team-input" value="${appState.teamName}" 
+                        class="w-full bg-black/40 border border-white/5 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-yellow-500 font-bold uppercase text-center text-xs placeholder:opacity-30"
+                        placeholder="NOME TEAM">
+                    
+                    <button onclick="login()" class="w-full py-3.5 btn-premium rounded-xl text-xs font-black uppercase tracking-widest active:scale-95 transition-transform">
+                        Entra
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    lucide.createIcons();
+}
+
+
+function login() {
+    const val = document.getElementById('team-input').value.trim().toUpperCase();
+    if (!val) return showModal('Accesso Negato', 'Inserisci il nome del tuo team.');
+    appState.teamName = val;
+    localStorage.setItem('fantaTeamName', val);
+    appState.isLoggedIn = true;
+    document.getElementById('main-header').classList.remove('hidden');
+    document.getElementById('main-nav').classList.remove('hidden');
+    changeView('home_dashboard');
+}
+
+// --- NUOVA FUNZIONE PER ACCETTARE/RIFIUTARE SFIDE ---
+async function rispondiSfida(idSfida, nuovoStato) {
+    closeModal();
+    const content = document.getElementById('content');
+    content.innerHTML = renderLoader('Aggiornamento sfida...');
+    try {
+        await fetchData(`action=updateSfida&id=${idSfida}&stato=${nuovoStato}`);
+        showModal("Successo", `Sfida ${nuovoStato.toLowerCase()}!`, 'check-circle');
+        renderHome(); 
+    } catch (e) {
+        showModal("Errore", "Impossibile aggiornare la sfida.", 'alert-triangle');
+        renderHome();
+    }
+}
+
+// --- NUOVA HOME DASHBOARD TURBO ---
+async function renderHome() {
+    const content = document.getElementById('content');
+    const cacheKey = `fanta_cache_${appState.teamName.replace(/\s/g, '')}`;
+
+    // 1. CARICAMENTO IMMEDIATO DALLA MEMORIA (Local Storage)
+    const cachedData = localStorage.getItem(cacheKey);
+    if (cachedData) {
+        console.log("Visualizzazione rapida da cache");
+        buildHomeUI(JSON.parse(cachedData)); 
+    } else {
+        // Se è la prima volta assoluta, mostra il loader
+        content.innerHTML = renderLoader('Sincronizzazione Arena...', true);
+    }
+
+    // 2. RECUPERO DATI AGGIORNATI (Singola chiamata getTutto)
+    try {
+        const cb = Date.now();
+        // Sostituiamo le 6 chiamate Promise.all con una sola
+        const freshData = await fetchData(`action=getTutto&team=${encodeURIComponent(appState.teamName)}&cb=${cb}`);
+        
+        // Salviamo i dati freschi nella memoria del telefono
+        localStorage.setItem(cacheKey, JSON.stringify(freshData));
+
+        // 3. AGGIORNA LO SCHERMO (Se l'utente non ha cambiato pagina)
+        if (appState.currentView === 'home_dashboard') {
+            buildHomeUI(freshData);
+            console.log("Dati aggiornati dal server con successo");
+        }
+    } catch (e) { 
+        console.error("Errore nel refresh dei dati:", e);
+        if (!cachedData) {
+            content.innerHTML = `<div class="p-10 text-center text-red-400">Errore di connessione al database.</div>`;
+        }
+    }
+}
+
+// FUNZIONE PER IL DISEGNO DELLA UI (Contiene tutto il tuo HTML originale)
+function buildHomeUI(data) {
+    const content = document.getElementById('content');
+    
+    // Mappatura dati dal pacchetto "getTutto"
+    const matchesData = data.partite;
+    const ranking = data.classificaTotale;
+    const viteData = data.vite;
+    const kit = data.kits;
+    const tutteLeVite = data.classificaVite;
+    const sfidePendenti = data.sfidePendenti;
+
+    // Logica Modal Sfida
+    if (sfidePendenti && sfidePendenti.length > 0) {
+        const sfida = sfidePendenti[0];
+        setTimeout(() => {
+            showModal("SFIDA RICEVUTA!", `<div class="text-center"><p class="mb-4">Il team <span class="text-yellow-500 font-bold">${sfidante}</span> ti ha sfidato!</p><div class="flex gap-2"><button onclick="rispondiSfida(${sfida.id}, 'ACCETTATA')" class="flex-1 py-3 bg-green-600 text-white rounded-xl font-bold uppercase text-[10px]">Accetta</button><button onclick="rispondiSfida(${sfida.id}, 'RIFIUTATA')" class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold uppercase text-[10px]">Rifiuta</button></div></div>`, 'swords');
+        }, 500);
+    }
+
+    if (matchesData && matchesData.length > 0) appState.currentGiornata = data.giornataCorrente || matchesData[0].giornata;
+
+    appState.lives = viteData?.Attuali ?? viteData?.attuali ?? 0;
+    const vPerse = viteData?.["Perse (Punti)"] ?? viteData?.perse ?? 0;
+    const vGuadagnate = viteData?.["Guad. (Punti)"] ?? viteData?.guadagnate ?? 0;
+    const vSfide = viteData?.["Sfide (+3)"] ?? viteData?.sfide ?? 0;
+
+    const myData = (ranking || []).find(r => r.team.toUpperCase() === appState.teamName.toUpperCase()) || { punti: 0 };
+    const myKit = kit || { modello: 'pieno', c1: "#D4AF37", c2: "#0A0F1B" };
+    const energyPercent = Math.min((appState.lives / 50) * 100, 100);
+    const barColor = appState.lives <= 10 ? 'linear-gradient(90deg, #ef4444, #ff4d4d)' : 'linear-gradient(90deg, #10B981, #34D399)';
+
+    // IL TUO HTML ORIGINALE
+    let homeHTML = `
+        <div class="space-y-4 pb-8 animate-in fade-in duration-500">
+            <div class="glass-card p-4 border-l-4 border-yellow-500 flex justify-between items-center">
+                <div class="flex items-center gap-4 min-w-0 w-full">
+                    <div class="kit-mini-dashboard shrink-0" style="--c1: ${myKit.c1}; --c2: ${myKit.c2}; --c3: ${myKit.c3}; --c4: ${myKit.c4};">
+                        <div class="kit-pattern-overlay pattern-${myKit.modello}"></div>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="team-header-container mb-1">
+                            <h1 class="text-xl font-black gold-glow italic uppercase truncate leading-tight">${appState.teamName}</h1>
+                            <div class="flex items-center gap-2">
+                                <span class="shrink-0 text-[7px] px-1.5 py-0.5 rounded-md bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 font-black uppercase">${getUserLevel(myData.punti).nome}</span>
+                                <button onclick="showRegolamento()" class="shrink-0 p-1.5 bg-yellow-500/10 border border-yellow-500/30 rounded-full active:scale-90 transition-transform">
+                                    <i data-lucide="star" class="h-3 w-3 text-yellow-500 fill-yellow-500"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest"><span class="text-yellow-500">${myData.punti}</span> PUNTI TOTALI</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card energy-container p-5 flex flex-col gap-3">
+                <div class="flex justify-between items-end">
+                    <div>
+                        <p class="text-[9px] text-gray-400 font-black uppercase tracking-[0.2em] mb-1">Status Sopravvivenza</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-4xl font-black text-white">${appState.lives}</span>
+                            <span class="text-[10px] font-bold text-gray-500 uppercase">VITE</span>
+                        </div>
+                    </div>
+                    <i data-lucide="heart" class="h-6 w-6 text-red-500 fill-red-500 ${appState.lives <= 10 ? 'animate-ping' : ''}"></i>
+                </div>
+                <div class="energy-bar-bg w-full">
+                    <div class="energy-bar-fill transition-all duration-1000" style="width: ${energyPercent}%; background: ${barColor};"></div>
+                </div>
+            </div>
+
+            <div class="flex gap-2 px-1">
+                <div class="stat-box flex-1 border-b-2 border-red-500/50"><p class="text-[7px] text-gray-400 uppercase font-black">Vite Perse</p><p class="text-sm font-black text-red-500">-${vPerse}</p></div>
+                <div class="stat-box flex-1 border-b-2 border-green-500/50"><p class="text-[7px] text-gray-400 uppercase font-black">Guadagnate</p><p class="text-sm font-black text-green-500">+${vGuadagnate}</p></div>
+                <div class="stat-box flex-1 border-b-2 border-blue-500/50"><p class="text-[7px] text-gray-400 uppercase font-black">Bonus Sfide</p><p class="text-sm font-black text-blue-400">+${vSfide}</p></div>
+            </div>
+
+            <div class="glass-card p-4">
+                <div class="flex justify-between items-center mb-6 px-1">
+                    <span class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Top 3 Global</span>
+                    <i data-lucide="trophy" class="h-3 w-3 text-yellow-500"></i>
+                </div>
+                <div class="flex items-end w-full h-40 pb-2">
+                    ${renderPodiumUI(ranking)}
+                </div>
+            </div>
+
+            <div class="glass-card overflow-hidden mt-6 border-t-2 border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.1)]">
+                <div class="relative h-36 w-full">
+                    <img src="https://i.ibb.co/1JRWrgKt/1000093555-Photoroom.png" 
+                         class="absolute inset-0 w-full h-full object-cover opacity-70" alt="Survivor">
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#0A0F1B] via-transparent to-transparent"></div>
+                    <div class="absolute bottom-3 left-4">
+                        <h3 class="text-white font-black text-xl italic uppercase leading-none tracking-tighter">Top Sopravvissuti</h3>
+                        <p class="text-[8px] text-red-500 font-black uppercase tracking-[0.2em]">Classifica Vite Rimanenti</p>
+                    </div>
+                </div>
+                
+                <div class="p-4 space-y-3 bg-black/40">
+                    ${(tutteLeVite || []).slice(0, 5).map((v, i) => {
+                        const isDead = Number(v.vite) <= 0;
+                        return `
+                        <div class="flex items-center justify-between border-b border-white/5 pb-2 last:border-0">
+                            <div class="flex items-center gap-3">
+                                <span class="text-[10px] font-black ${i === 0 ? 'text-yellow-500' : 'text-gray-500'}">${i+1}°</span>
+                                <span class="text-[11px] font-bold uppercase ${isDead ? 'text-gray-600 line-through' : 'text-white'}">${v.team}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-black ${isDead ? 'text-gray-700' : 'text-red-500'}">${v.vite}</span>
+                                <i data-lucide="heart" class="h-3 w-3 ${isDead ? 'text-gray-800' : 'text-red-500 fill-red-500'}"></i>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                    
+                    <button onclick="changeView('ranking')" class="w-full py-2 mt-2 text-[8px] font-black uppercase text-gray-500 tracking-[0.2em] border border-white/5 rounded-lg hover:bg-white/5 transition-colors">
+                        Vedi Classifica Completa
+                    </button>
+                </div>
+            </div>
+        `;
+
+    // Pannello Amministratore
+    if (appState.teamName.toUpperCase() === "FC RONALDINHA") {
+        homeHTML += `
+            <div class="glass-card p-4 border-t-4 border-green-500 mt-6 bg-green-500/5">
+                <h3 class="text-[10px] font-black text-green-500 uppercase tracking-widest mb-4">Pannello Amministratore</h3>
+                <div class="flex gap-2 mb-4">
+                    <select id="waDaySelector" class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white outline-none">
+                        ${Array.from({length:38}, (_,i)=> `<option value="${i+1}" ${i+1==appState.currentGiornata?'selected':''}>Giornata ${i+1}</option>`).join('')}
+                    </select>
+                    <button onclick="shareWinnersOnWhatsApp(event)" class="flex-[2] py-3 bg-green-600 text-white rounded-xl font-black text-[10px] uppercase flex items-center justify-center gap-2">
+                        <i data-lucide="share-2" class="h-4 w-4"></i> Condividi Risultati
+                    </button>
+                </div>
+            </div>`;
+    }
+
+    content.innerHTML = homeHTML + `</div>`;
+    if (window.lucide) lucide.createIcons();
+}
+
+
+
+
+
+
+
+
+    // --- FUNZIONE RENDERING PODIO ---
+    function renderPodiumUI(ranking) {
+    if(!ranking || !ranking.length) return `<p class="text-center text-[10px] uppercase opacity-50 w-full">Classifica non disponibile</p>`;
+    const top3 = ranking.slice(0, 3);
+    
+    // Ordine visivo: 2° (idx 1), 1° (idx 0), 3° (idx 2)
+    const visualOrder = [1, 0, 2]; 
+    const configs = {
+        0: { h: 'h-24', color: 'border-yellow-500', glow: 'shadow-[0_-5px_15px_rgba(234,179,8,0.2)]', medal: '🥇' },
+        1: { h: 'h-16', color: 'border-slate-400', glow: '', medal: '🥈' },
+        2: { h: 'h-12', color: 'border-orange-700', glow: '', medal: '🥉' }
+    };
+
+    return visualOrder.map(idx => {
+        const u = top3[idx];
+        // Se non c'è il giocatore, crea una colonna vuota per mantenere le proporzioni
+        if(!u) return `<div class="w-1/3"></div>`;
+        
+        const conf = configs[idx];
+        const isFirst = idx === 0;
+        
+        return `
+            <div class="flex flex-col items-center w-1/3 min-w-0">
+                <div class="text-2xl mb-1 ${isFirst ? 'animate-bounce' : ''}">${conf.medal}</div>
+                
+                <div class="w-full text-center mb-2 px-1 overflow-hidden">
+                    <p class="text-[9px] font-black text-white uppercase truncate leading-tight">${u.team}</p>
+                    <p class="text-[10px] font-bold text-yellow-500">${u.punti} PT</p>
+                </div>
+                
+                <div class="w-full ${conf.h} bg-gradient-to-t from-white/10 to-white/20 border-t-2 ${conf.color} ${conf.glow} rounded-t-xl flex items-center justify-center relative">
+                    <span class="text-2xl font-black text-white/5 italic select-none">${idx + 1}</span>
+                </div>
+            </div>`;
+    }).join('');
+}
+
+    // --- PANNELLO AMMINISTRATORE ---
+    function renderAdmin() {
+        const panel = document.getElementById('admin-panel');
+        if(!panel) return;
+        panel.innerHTML = `
+            <button onclick="shareWinners()" class="w-full py-4 glass-card border-green-500/50 flex items-center justify-center gap-3 text-green-500 font-bold mt-4 hover:bg-green-500/10 transition-all active:scale-95">
+                <i data-lucide="share-2"></i> Annuncia Vincitori G${appState.currentGiornata}
+            </button>`;
+        lucide.createIcons();
+    }
+
+
+
+
+
+
+
+
+    // --- MATCHES / SCHEDINA ---
+        // --- MATCHES / SCHEDINA ---
+
+async function renderMatches() {
+    const content = document.getElementById('content');
+    const body = document.body;
+    
+    // Reset stato sfida
+    appState.isChallengeMode = false;
+
+    // Gestione tema grafico dinamico (Maghetto vs Standard)
+    if (appState.isMagicMode) {
+        body.classList.add('magic-mode-active');
+    } else {
+        body.classList.remove('magic-mode-active');
+    }
+
+    content.innerHTML = `
+        <div class="space-y-4 animate-in fade-in duration-500">
+            
+            <div id="status-lives-bar" class="glass-card p-3 flex justify-between items-center bg-red-500/10 border-red-500/20">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-gray-300">Tua Sopravvivenza:</span>
+                <span class="font-black text-white">${appState.lives} VITE</span>
+            </div>
+
+            <button onclick="toggleMagicMode()" 
+                class="w-full py-4 glass-card flex items-center justify-center gap-3 transition-all active:scale-95 border-t-2 
+                ${appState.isMagicMode ? 'magic-card border-purple-500 text-purple-400' : 'border-white/10 text-gray-400'}">
+                <i data-lucide="wand-2" class="${appState.isMagicMode ? 'animate-pulse' : ''}"></i>
+                <span class="text-[11px] font-black uppercase tracking-[0.2em]">
+                    ${appState.isMagicMode ? 'Maghetto Attivo' : 'Attiva Modalità Maghetto'}
+                </span>
+            </button>
+
+            <div class="glass-card p-4 border shadow-lg ${appState.isMagicMode ? 'magic-card border-purple-500/30' : 'border-blue-500/30 bg-blue-500/5'}">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h4 class="text-[10px] font-black uppercase tracking-widest ${appState.isMagicMode ? 'text-purple-400' : 'text-blue-400'}">Modalità Invio</h4>
+                        <p class="text-[8px] text-gray-500 italic">Scegli come registrare i punti</p>
+                    </div>
+                    <div class="flex bg-black/40 p-1 rounded-xl border border-white/10">
+                        <button type="button" onclick="setPlayType(false)" id="type-reg" class="px-3 py-1 text-[9px] font-bold rounded-lg transition-all bg-blue-500 text-white">REGOLARE</button>
+                        <button type="button" onclick="setPlayType(true)" id="type-sfida" class="px-3 py-1 text-[9px] font-bold rounded-lg transition-all text-gray-500">SFIDA</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center bg-white/5 p-3 rounded-2xl border border-white/10">
+                <h3 class="font-bold text-yellow-500 uppercase text-xs">Schedina</h3>
+                <select id="g-select" onchange="loadMatches(this.value)" class="bg-transparent font-bold text-white text-sm focus:outline-none">
+                    ${Array.from({length:38}, (_,i)=> `<option value="${i+1}" ${i+1==appState.selectedGiornata?'selected':''}>Giornata ${i+1}</option>`).join('')}
+                </select>
+            </div>
+
+            <div id="match-list" class="space-y-4"></div>
+        </div>`;
+    
+    loadMatches(appState.selectedGiornata);
+    lucide.createIcons(); // Fondamentale per renderizzare l'icona della bacchetta
+}
+
+
+function setPlayType(isSfida) {
+    appState.isChallengeMode = isSfida;
+    const btnReg = document.getElementById('type-reg');
+    const btnSfida = document.getElementById('type-sfida');
+    if (!btnReg || !btnSfida) return;
+    
+    if (isSfida) {
+        btnSfida.className = 'px-3 py-1 text-[9px] font-bold rounded-lg bg-yellow-500 text-black transition-all';
+        btnReg.className = 'px-3 py-1 text-[9px] font-bold rounded-lg text-gray-500 transition-all';
+    } else {
+        btnReg.className = 'px-3 py-1 text-[9px] font-bold rounded-lg bg-blue-500 text-white transition-all';
+        btnSfida.className = 'px-3 py-1 text-[9px] font-bold rounded-lg text-gray-500 transition-all';
+    }
+}
+
+
+function changeSfideGiornata(delta) {
+    let nuovaG = appState.selectedSfideGiornata + delta;
+    if (nuovaG < 1 || nuovaG > 38) return; // Esci subito se fuori range
+
+    appState.selectedSfideGiornata = nuovaG;
+
+    const label = document.getElementById('sfide-giornata-label');
+    if (label) label.textContent = `GIORNATA ${appState.selectedSfideGiornata}`;
+
+    const list = document.getElementById('sfide-list');
+    if (list) {
+        // Usiamo il loader per dare feedback
+        list.innerHTML = renderLoader(`Entrando nella Giornata ${nuovaG}...`);
+    }
+
+    // Chiamata al server
+    loadSfide(nuovaG);
+}
+
+
+
+
+
+async function renderSfide() {
+    const content = document.getElementById('content');
+    
+    // FORZIAMO la giornata visualizzata su quella corrente del campionato 
+    // se l'utente non ne ha già scelta una specifica durante la sessione
+    if (!appState.selectedSfideGiornata || appState.selectedSfideGiornata === 1) {
+        appState.selectedSfideGiornata = appState.currentGiornata;
+    }
+
+    content.innerHTML = `
+        <div class="space-y-6 animate-in fade-in duration-500">
+            <div class="glass-card p-6 border-b-4 border-yellow-500 text-center">
+                <h2 class="text-2xl font-black font-poppins gold-glow uppercase italic">Arena Sfide</h2>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Lancia il guanto o controlla i risultati</p>
+            </div>
+
+            <div class="flex items-center justify-between bg-black/40 p-2 rounded-xl border border-white/10 mx-2">
+                <button onclick="changeSfideGiornata(-1)" class="p-2 text-yellow-500 active:scale-90 transition-transform">
+                    <i data-lucide="chevron-left"></i>
+                </button>
+                <div class="text-center">
+                    <span class="block text-[8px] text-gray-500 uppercase font-black">Campionato</span>
+                    <span class="text-sm font-black text-white uppercase" id="sfide-giornata-label">GIORNATA ${appState.selectedSfideGiornata}</span>
+                </div>
+                <button onclick="changeSfideGiornata(1)" class="p-2 text-yellow-500 active:scale-90 transition-transform">
+                    <i data-lucide="chevron-right"></i>
+                </button>
+            </div>
+
+            <div class="glass-card p-4">
+                <label class="text-[10px] font-black text-gray-500 uppercase mb-2 block">Nuovo Duello</label>
+                <div class="flex gap-2 items-center">
+                    <div class="flex-1 min-w-0"> 
+                        <select id="opponent-launcher-select" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[11px] text-white outline-none truncate">
+                            <option value="">Caricamento...</option>
+                        </select>
+                    </div>
+                    <button id="btn-launch-challenge" onclick="launchManualChallenge()" class="shrink-0 bg-yellow-500 text-black h-[44px] px-6 rounded-xl font-black text-[10px] uppercase shadow-lg shadow-yellow-500/20 active:scale-95 transition-transform flex items-center justify-center">
+                        Sfida
+                    </button>
+                </div>
+            </div>
+
+            <div id="sfide-list" class="space-y-4 pb-10 min-h-[200px]">
+                ${renderLoader('Entrando nell’Arena...')}
+            </div>
+        </div>
+    `;
+    
+    // Inizializza i componenti
+    lucide.createIcons();
+    loadOpponentsForLauncher();
+    loadSfide(appState.selectedSfideGiornata);
+}
+
+
+
+
+
+async function loadMatches(g) {
+    appState.selectedGiornata = g;
+    const container = document.getElementById('match-list');
+    if (!container) return;
+    
+    container.innerHTML = renderLoader(`Sincronizzazione Giornata ${g}...`);
+
+    try {
+        const data = await fetchData(`action=getPartite&giornata=${g}`);
+        appState.matches = data;
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = `<div class="p-10 text-center opacity-50 font-bold uppercase text-xs">Nessun match trovato</div>`;
+            return;
+        }
+
+        container.innerHTML = data.map(m => {
+            const key = `match_${m.giornata}_${m.casa}_${m.ospite}`.replace(/\s/g, '_');
+            const saved = localStorage.getItem(key) || '';
+            const played = m.risultatoCasa !== "" && m.risultatoCasa !== undefined;
+            
+            return `
+                <div class="glass-card p-5 mb-4 border-l-4 ${played ? 'border-gray-600' : 'border-yellow-500'}">
+                    <div class="text-[9px] font-bold text-gray-500 mb-4 flex justify-between items-center">
+                        <span>${new Date(m.data).toLocaleString('it-IT', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'})}</span>
+                        ${played ? '<span class="text-red-400 font-bold tracking-widest">TERMINATA</span>' : '<span class="text-green-500 animate-pulse">APERTA</span>'}
+                    </div>
+                    
+                    <div class="flex items-center justify-between gap-2 mb-6 text-center">
+                        <div class="flex-1">
+                            <div class="team-logo-container mb-2"><img src="${LOGHI[m.casa]}" class="team-logo-img"></div>
+                            <span class="text-[10px] font-black uppercase truncate block">${m.casa}</span>
+                        </div>
+
+                        <div class="w-20 flex flex-col items-center gap-1">
+                            ${!played ? `
+                                <button onclick="showAISuggestion('${m.casa}', '${m.ospite}')" class="p-2 hover:bg-white/10 rounded-lg transition-colors group">
+    <i data-lucide="sparkles" class="h-4 w-4 text-yellow-500 group-hover:scale-110 transition-transform"></i>
+</button>
+
+                            ` : ''}
+                            <div class="font-black text-xl leading-none">${played ? `${m.risultatoCasa}-${m.risultatoOspite}` : 'VS'}</div>
+                            ${!played ? '<span class="text-[7px] text-yellow-500/60 font-black tracking-tighter">AI TIPS</span>' : ''}
+                        </div>
+
+                        <div class="flex-1">
+                            <div class="team-logo-container mb-2"><img src="${LOGHI[m.ospite]}" class="team-logo-img"></div>
+                            <span class="text-[10px] font-black uppercase truncate block">${m.ospite}</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2">
+                        ${['1', 'X', '2'].map(v => `
+                            <button onclick="selectBet('${key}', '${v}')" id="btn-${key}-${v}" 
+                                class="prediction-btn ${saved==v?'prediction-btn-active':''} ${played?'opacity-30 pointer-events-none':''}">
+                                ${v}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>`;
+        }).join('') + `<button onclick="submitBets()" id="submit-main" class="w-full py-4 btn-premium mt-6 mb-10">Conferma Pronostici</button>`;
+        
+        lucide.createIcons();
+    } catch (e) { 
+        container.innerHTML = `<p class="text-center text-red-400 py-10 font-bold">Errore connessione.</p>`; 
+    }
+}
+
+function selectBet(key, val) {
+    appState.predictions[key] = val;
+    localStorage.setItem(key, val);
+    document.querySelectorAll(`[id^="btn-${key}"]`).forEach(b => b.classList.remove('prediction-btn-active'));
+    const target = document.getElementById(`btn-${key}-${val}`);
+    if (target) target.classList.add('prediction-btn-active');
+}
+
+async function submitBets() {
+    const btn = document.getElementById('submit-main');
+    if (!btn) return;
+    
+    // 1. Controllo compilazione
+    const currentMatches = appState.matches.map(m => {
+        const key = `match_${m.giornata}_${m.casa}_${m.ospite}`.replace(/\s/g, '_');
+        return { casa: m.casa, ospite: m.ospite, pronostico: localStorage.getItem(key) };
+    });
+
+    if (currentMatches.some(m => !m.pronostico)) {
+        showModal('Attenzione', 'Compila tutti i pronostici!', 'alert-triangle');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Verifica in corso...";
+
+    // 2. Controllo Doppioni (Solo se REGOLARE)
+    if (!appState.isChallengeMode) {
+        try {
+            const check = await fetchData(`action=getPronostici&team=${encodeURIComponent(appState.teamName)}&giornata=${appState.selectedGiornata}&tipo=REGOLARE`);
+            if (check && check.length > 0) {
+                showModal('Giocata Bloccata', `Hai già inviato i tuoi voti per la Giornata ${appState.selectedGiornata}. Non è possibile inviarli due volte.`, 'shield-alert');
+                btn.disabled = false;
+                btn.textContent = "Conferma Pronostici";
+                return;
+            }
+        } catch (e) { console.error("Errore controllo duplicati"); }
+    }
+
+    // 3. Invio effettivo
+    btn.textContent = "Invio...";
+    const payload = {
+        team: appState.teamName,
+        giornata: appState.selectedGiornata,
+        isSfida: appState.isChallengeMode,
+        matches: currentMatches
+    };
+
+    try {
+        const res = await fetchData(`action=save&data=${encodeURIComponent(JSON.stringify(payload))}`);
+        if (res.status === 'ok') {
+            showModal('Successo!', 'Pronostici registrati con successo.', 'check-circle');
+            loadMatches(appState.selectedGiornata);
+        } else {
+            showModal('Errore', res.message, 'x-circle');
+        }
+    } catch (e) { 
+        showModal('Errore di Rete', 'Impossibile salvare.'); 
+    } finally { 
+        btn.disabled = false; 
+        btn.textContent = "Conferma Pronostici"; 
+    }
+}
+
+
+
+// --- ARENA SFIDE ---
+async function loadSfide(g) {
+    const list = document.getElementById('sfide-list');
+    list.innerHTML = renderLoader('Caricamento Arena...');
+    try {
+        const data = await fetchData(`action=getSfide&giornata=${g}`);
+        if(!data || !data.length) {
+            list.innerHTML = `<div class="p-10 text-center opacity-30"><i data-lucide="swords" class="h-10 w-10 mx-auto mb-2"></i><p class="text-[10px] font-bold uppercase">Nessun duello</p></div>`;
+        } else {
+            list.innerHTML = data.map(s => {
+                const isMeSfidato = s.sfidato === appState.teamName;
+                const isAperta = s.stato === 'IN ATTESA';
+                
+                return `
+                <div class="glass-card p-4 border-l-4 ${s.stato === 'ACCETTATA' ? 'border-green-500' : 'border-yellow-500'} mb-3">
+                    <div class="flex justify-start mb-2">
+                        <span class="text-[8px] font-bold ${s.stato === 'ACCETTATA' ? 'text-green-500' : 'text-gray-400'} uppercase bg-white/5 px-2 py-0.5 rounded-full">${s.stato}</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between text-center gap-1">
+                        <div class="w-[40%] flex flex-col items-center">
+                            <span class="text-[10px] font-black text-white leading-tight h-8 flex items-center justify-center text-center break-words w-full uppercase">${s.sfidante}</span>
+                            <span class="text-2xl font-black gold-glow">${s.p1 || 0}</span>
+                        </div>
+
+                        <div class="w-[20%] flex flex-col items-center justify-center gap-1">
+                            <button onclick="showSfidaDetails('${encodeURIComponent(JSON.stringify(s))}')" class="bg-white/5 p-2 rounded-full text-blue-400 hover:bg-white/10 transition-colors">
+                                <i data-lucide="info" class="h-4 w-4"></i>
+                            </button>
+                            <span class="text-[8px] font-black text-gray-600 italic uppercase">VS</span>
+                        </div>
+
+                        <div class="w-[40%] flex flex-col items-center">
+                            <span class="text-[10px] font-black text-white leading-tight h-8 flex items-center justify-center text-center break-words w-full uppercase">${s.sfidato}</span>
+                            <span class="text-2xl font-black gold-glow">${s.p2 || 0}</span>
+                        </div>
+                    </div>
+
+                    ${isMeSfidato && isAperta ? `
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="handleChallenge('${s.id}', 'ACCETTATA')" class="flex-1 py-2 bg-green-500/20 border border-green-500 text-green-500 rounded-lg text-[9px] font-black uppercase">Accetta</button>
+                        <button onclick="handleChallenge('${s.id}', 'RIFIUTATA')" class="flex-1 py-2 bg-red-500/20 border border-red-500 text-red-500 rounded-lg text-[9px] font-black uppercase">Rifiuta</button>
+                    </div>
+                    ` : ''}
+                </div>`;
+            }).join('');
+        }
+        lucide.createIcons();
+    } catch(e) { list.innerHTML = `<p class="text-center py-10 text-xs">Errore caricamento.</p>`; }
+}
+
+
+
+async function loadOpponentsForLauncher() {
+    try {
+        const data = await fetchData('action=getClassificaTotale');
+        const select = document.getElementById('opponent-launcher-select');
+        if(!select) return;
+        select.innerHTML = '<option value="">Scegli avversario...</option>';
+        data.forEach(u => {
+            if(u.team.toUpperCase() !== appState.teamName.toUpperCase()) {
+                const opt = document.createElement('option');
+                opt.value = u.team;
+                opt.textContent = u.team;
+                select.appendChild(opt);
+            }
+        });
+    } catch(e) {}
+}
+
+async function launchManualChallenge() {
+    const select = document.getElementById('opponent-launcher-select');
+    const btn = document.getElementById('btn-launch-challenge');
+    const sfidato = select.value;
+    
+    if(!sfidato) return showModal('Attenzione', 'Seleziona un avversario!');
+    
+    // Feedback Caricamento
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="animate-spin text-lg">↻</span>`;
+
+    try {
+        const payload = { sfidante: appState.teamName, sfidato: sfidato, giornata: appState.currentGiornata };
+        const res = await fetchData(`action=saveSfida&data=${encodeURIComponent(JSON.stringify(payload))}`);
+        if(res.status === 'ok') {
+            showModal('GUANTO LANCIATO!', `Hai sfidato ${sfidato}. Attendiamo la sua mossa.`, 'swords');
+            loadSfide(appState.currentGiornata);
+        } else {
+            showModal('Nota', res.message);
+        }
+    } catch(e) { 
+        showModal('Errore', 'Problema di rete.'); 
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
+
+async function handleChallenge(idSfida, nuovoStato) {
+    // Identifica il bottone cliccato (accetta o rifiuta)
+    const btn = event.currentTarget;
+    const originalText = btn.innerHTML;
+    
+    btn.disabled = true;
+    btn.innerHTML = `<span class="animate-spin">↻</span>`;
+
+    try {
+        const res = await fetchData(`action=updateSfida&id=${idSfida}&stato=${nuovoStato}`);
+        if(res.status === 'ok') {
+            showModal('Arena Sfide', `Hai ${nuovoStato === 'ACCETTATA' ? 'accettato' : 'rifiutato'} il duello!`, 'swords');
+            await fetchData(`action=recupero`); 
+            loadSfide(appState.currentGiornata);
+        } else {
+            showModal('Errore', res.message, 'x-circle');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    } catch(e) { 
+        showModal('Errore', 'Problema di connessione.', 'wifi-off'); 
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
+
+
+// --- RANKING ---
+async function renderRanking() {
+    const content = document.getElementById('content');
+    content.innerHTML = `
+        <div class="space-y-4">
+            <div class="flex glass-card p-1">
+                <button onclick="setRank('globale')" id="tab-globale" class="flex-1 py-3 text-xs font-black uppercase rounded-xl transition-all">Punti Totali</button>
+                <button onclick="setRank('giornaliera')" id="tab-giornaliera" class="flex-1 py-3 text-xs font-black uppercase rounded-xl transition-all">Settimana</button>
+            </div>
+            <div id="ranking-controls" class="hidden flex justify-end">
+                <select id="rank-g-select" onchange="updateDailyRank(this.value)" class="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-xs font-bold text-yellow-500 outline-none">
+                    ${Array.from({length:38}, (_,i)=> `<option value="${i+1}" ${i+1==appState.selectedRankingGiornata?'selected':''}>Giornata ${i+1}</option>`).join('')}
+                </select>
+            </div>
+            <div id="rank-list" class="space-y-2"></div>
+        </div>`;
+    setRank(appState.selectedRankingTab === 'sfide' ? 'globale' : appState.selectedRankingTab);
+}
+
+function updateDailyRank(g) {
+    appState.selectedRankingGiornata = g;
+    setRank(appState.selectedRankingTab);
+}
+
+async function setRank(type) {
+    appState.selectedRankingTab = type;
+    const list = document.getElementById('rank-list');
+    const ctrls = document.getElementById('ranking-controls');
+    
+    document.querySelectorAll('[id^="tab-"]').forEach(el => {
+        el.style.background = 'transparent'; el.style.color = '#64748b';
+    });
+    const activeTab = document.getElementById(`tab-${type}`);
+    if(activeTab) {
+        activeTab.style.background = 'rgba(212,175,55,0.2)';
+        activeTab.style.color = GOLD;
+    }
+
+    ctrls.classList.toggle('hidden', type === 'globale');
+    list.innerHTML = renderLoader('Caricamento...');
+    try {
+        const action = type == 'globale' ? 'getClassificaTotale' : `getClassifica&giornata=${appState.selectedRankingGiornata}`;
+        const data = await fetchData(`action=${action}`);
+        list.innerHTML = data.map((u, i) => `
+            <div class="glass-card p-4 flex items-center justify-between ${u.team == appState.teamName ? 'border-yellow-500/50 bg-yellow-500/5' : ''}">
+                <div class="flex items-center gap-4">
+                    <span class="text-[10px] font-black text-gray-500 w-4">${i+1}</span>
+                    <span class="text-sm font-bold truncate ${u.team == appState.teamName ? 'gold-glow' : 'text-white'}">${u.team}</span>
+                </div>
+                <span class="text-lg font-black ${i<3 ? 'gold-glow' : 'text-gray-400'}">${u.punti} <span class="text-[10px]">PT</span></span>
+            </div>`).join('');
+    } catch (e) { list.innerHTML = `<p class="text-center py-10 text-xs">Errore dati.</p>`; }
+    lucide.createIcons();
+}
+
+// --- HISTORY (CORRETTA) ---
+async function renderMyBets() {
+    const content = document.getElementById('content');
+    content.innerHTML = renderLoader('Recupero Storico...');
+    try {
+        // Cache buster per evitare risultati vecchi dal browser
+        const cb = Date.now();
+        // Chiamata al GAS filtrata per il tuo team
+        const data = await fetchData(`action=getPronostici&team=${encodeURIComponent(appState.teamName)}&_cb=${cb}`);
+        
+        if (!data || !data.length || data.length === 0) {
+            content.innerHTML = `
+                <div class="glass-card p-10 text-center">
+                    <i data-lucide="search-x" class="h-10 w-10 mx-auto mb-4 text-gray-600"></i>
+                    <p class="text-gray-500 uppercase font-black text-[10px] tracking-widest">Nessuna giocata trovata per<br><span class="text-yellow-500">${appState.teamName}</span></p>
+                </div>`;
+            lucide.createIcons();
+            return;
+        }
+
+        // Raggruppa per giornata (gestisce sia 'g' che 'giornata')
+        const grouped = data.reduce((acc, b) => { 
+            const gNum = b.g || b.giornata || "??"; 
+            if (!acc[gNum]) acc[gNum] = [];
+            acc[gNum].push(b); 
+            return acc; 
+        }, {});
+
+        let html = `<h2 class="text-xl font-black mb-6 gold-glow uppercase italic">Il Tuo Storico</h2>`;
+        
+        // Ordina le giornate dalla più recente alla più vecchia
+        const sortedDays = Object.keys(grouped).sort((a, b) => b - a);
+
+        html += sortedDays.map(day => {
+            const matches = grouped[day];
+            // Somma i punti della giornata (gestisce sia 'pts' che 'punti')
+            const ptsGiorno = matches.reduce((s, x) => s + (Number(x.pts || x.punti || 0)), 0);
+            
+            return `
+            <div class="glass-card mb-6 overflow-hidden border-t border-white/10">
+                <div class="bg-white/5 p-4 flex justify-between items-center border-b border-white/5">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-yellow-500 text-black text-[9px] font-black px-2 py-0.5 rounded">G${day}</span>
+                        <span class="font-black text-white text-[10px] uppercase">Schedina</span>
+                    </div>
+                    <span class="font-black text-yellow-500 text-xs">+${ptsGiorno} PT</span>
+                </div>
+                <div class="p-3 space-y-2 bg-black/20">
+                    ${matches.map(b => {
+                        const puntiSingoli = Number(b.pts || b.punti || 0);
+                        const esito = b.esito || '-';
+                        const colorePunti = puntiSingoli > 0 ? 'text-green-500' : (esito !== '-' ? 'text-red-500' : 'text-gray-500');
+                        
+                        return `
+                        <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-[9px] font-bold text-gray-400 uppercase block truncate mb-1">${b.partita || 'Partita'}</span>
+                                <div class="flex gap-3 text-[10px]">
+                                    <span class="text-gray-500">Pron: <b class="text-white">${b.pron || b.pronostico || '?'}</b></span>
+                                    <span class="text-gray-500">Ris: <b class="text-yellow-500">${esito}</b></span>
+                                </div>
+                            </div>
+                            <div class="text-right ml-2">
+                                <span class="font-black text-sm ${colorePunti}">
+                                    ${puntiSingoli > 0 ? '+' : ''}${puntiSingoli}
+                                </span>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>`;
+        }).join('');
+
+        content.innerHTML = html;
+        lucide.createIcons();
+    } catch (e) { 
+        console.error(e);
+        content.innerHTML = `<div class="p-10 text-center text-red-400 font-bold uppercase text-xs">Errore nel caricamento dei dati</div>`; 
+    }
+}
+
+
+// --- CHAT ---
+async function renderChat() {
+    const content = document.getElementById('content');
+    content.innerHTML = `
+        <div class="flex flex-col h-[75vh]">
+            <h2 class="text-xl font-black gold-glow uppercase italic mb-4">Elite Club Chat</h2>
+            <div id="chat-box" class="flex-1 glass-card p-4 overflow-y-auto space-y-4 mb-4 bg-black/40 min-h-[400px]">
+                ${renderLoader('Sincronizzazione...')}
+            </div>
+            <div class="flex gap-2">
+                <input type="text" id="chat-input" onkeypress="if(event.key==='Enter') sendMessage()" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none" placeholder="Scrivi un messaggio...">
+                <button onclick="sendMessage()" class="w-12 h-12 btn-premium rounded-xl flex items-center justify-center"><i data-lucide="send" class="h-5 w-5"></i></button>
+            </div>
+        </div>`;
+    loadChatMessages();
+    if (chatInterval) clearInterval(chatInterval);
+    chatInterval = setInterval(loadChatMessages, 10000);
+    lucide.createIcons();
+}
+
+async function loadChatMessages() {
+    const chatBox = document.getElementById('chat-box');
+    if (!chatBox) return; 
+    try {
+        const messages = await fetchData('action=getChat');
+        if (!messages || messages.length === 0) {
+            chatBox.innerHTML = `<p class="text-center text-[10px] text-gray-500 mt-20">Nessun messaggio</p>`;
+            return;
+        }
+        chatBox.innerHTML = messages.map(m => {
+            const isMe = String(m.team).toUpperCase() === appState.teamName.toUpperCase();
+            return `
+                <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                    <span class="text-[7px] text-gray-500 mb-1">${m.team} - ${m.ora}</span>
+                    <div class="${isMe ? 'bg-yellow-500 text-black' : 'bg-white/10 text-white'} px-4 py-2 rounded-xl text-xs font-bold max-w-[85%]">
+                        ${m.testo}
+                    </div>
+                </div>`;
+        }).join('');
+        chatBox.scrollTop = chatBox.scrollHeight;
+    } catch (e) {}
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = ''; 
+    try {
+        await fetchData(`action=sendChat&data=${encodeURIComponent(JSON.stringify({ team: appState.teamName, messaggio: msg }))}`);
+        loadChatMessages(); 
+    } catch (e) {}
+}
+
+// --- KIT DESIGNER ELITE PRO (15 MODELLI E 4 COLORI) ---
+async function renderKitRoom() {
+    const content = document.getElementById('content');
+    content.innerHTML = renderLoader('Entrando nello spogliatoio...');
+    
+    const modelli = [
+        {id: 'pieno', nome: 'Classica'}, {id: 'strisce-v', nome: 'Verticali'},
+        {id: 'strisce-o', nome: 'Orizzontali'}, {id: 'croce', nome: 'Crociata'},
+        {id: 'diagonale', nome: 'Diagonale'}, {id: 'quarti', nome: 'A Quarti'},
+        {id: 'scacchi', nome: 'Scacchi'}, {id: 'pinstripe', nome: 'Gessato'},
+        {id: 'cerchi', nome: 'Cerchiati'}, {id: 'mimetico', nome: 'Mimetico'},
+        {id: 'sfumato', nome: 'Sfumato'}, {id: 'rombi', nome: 'Rombi'},
+        {id: 'fulmine', nome: 'Fulmine'}, {id: 'v-shape', nome: 'V-Neck Style'},
+        {id: 'onde', nome: 'Ondulato'}
+    ];
+
+    try {
+        const currentKit = await fetchData(`action=getKits&team=${encodeURIComponent(appState.teamName)}&cb=${Date.now()}`) || {
+            modello: 'pieno', c1: '#D4AF37', c2: '#0A0F1B', c3: '#ffffff', c4: '#fbbf24'
+        };
+
+        appState.tempModel = currentKit.modello || 'pieno';
+
+        content.innerHTML = `
+            <div class="space-y-6 animate-in slide-in-from-bottom-6 duration-700">
+                <header class="text-center">
+                    <span class="text-[10px] tracking-[0.5em] text-yellow-500 font-bold uppercase">Stile & Identità</span>
+                    <h2 class="text-3xl font-black gold-glow uppercase italic">Kit Designer</h2>
+                </header>
+
+                <div class="glass-card p-8 flex flex-col items-center relative overflow-hidden">
+                    <div id="kit-preview-container" class="kit-container-dashboard scale-[2.5] my-12" 
+                         style="--c1: ${currentKit.c1}; --c2: ${currentKit.c2}; --c3: ${currentKit.c3}; --c4: ${currentKit.c4};">
+                        <div id="kit-preview-pattern" class="kit-pattern-overlay pattern-${appState.tempModel}"></div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-5 space-y-6">
+                    <div>
+                        <label class="text-[10px] font-black text-gray-400 uppercase mb-3 block">Scegli il Design</label>
+                        <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-2 bg-black/30 rounded-xl border border-white/5 custom-scrollbar">
+                            ${modelli.map(m => `
+                                <button onclick="selectKitModel('${m.id}', '${m.nome}')" 
+                                        id="mod-btn-${m.id}"
+                                        class="py-2 px-3 text-[9px] font-bold uppercase rounded-lg border border-white/5 ${appState.tempModel === m.id ? 'bg-yellow-500/20 border-yellow-500 text-yellow-500' : 'bg-white/5 text-white'}">
+                                    ${m.nome}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-black text-gray-400 uppercase mb-3 block">Colori (Base, Secondario, Dettagli, Pattern)</label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <input type="color" id="kit-c1" value="${currentKit.c1}" oninput="updateKitPreview()" class="w-full h-10 bg-transparent cursor-pointer">
+                            <input type="color" id="kit-c2" value="${currentKit.c2}" oninput="updateKitPreview()" class="w-full h-10 bg-transparent cursor-pointer">
+                            <input type="color" id="kit-c3" value="${currentKit.c3}" oninput="updateKitPreview()" class="w-full h-10 bg-transparent cursor-pointer">
+                            <input type="color" id="kit-c4" value="${currentKit.c4}" oninput="updateKitPreview()" class="w-full h-10 bg-transparent cursor-pointer">
+                        </div>
+                    </div>
+                    
+                    <button onclick="saveKitDesign()" id="btn-save-kit" class="w-full py-5 btn-premium rounded-2xl font-black text-lg">
+                        APPLICA DIVISA
+                    </button>
+                </div>
+            </div>`;
+        lucide.createIcons();
+    } catch (e) { 
+        content.innerHTML = `<p class="text-center py-10 font-bold text-red-400">Errore caricamento designer.</p>`; 
+    }
+}
+
+function updateKitPreview() {
+    const c1 = document.getElementById('kit-c1').value;
+    const c2 = document.getElementById('kit-c2').value;
+    const c3 = document.getElementById('kit-c3').value;
+    const c4 = document.getElementById('kit-c4').value;
+    const container = document.getElementById('kit-preview-container');
+    if(container) {
+        container.style.setProperty('--c1', c1);
+        container.style.setProperty('--c2', c2);
+        container.style.setProperty('--c3', c3);
+        container.style.setProperty('--c4', c4);
+    }
+}
+
+function selectKitModel(id, nome) {
+    appState.tempModel = id;
+    document.querySelectorAll('[id^="mod-btn-"]').forEach(btn => {
+        btn.classList.remove('bg-yellow-500/20', 'border-yellow-500', 'text-yellow-500');
+        btn.classList.add('bg-white/5', 'text-white');
+    });
+    const activeBtn = document.getElementById(`mod-btn-${id}`);
+    if(activeBtn) activeBtn.classList.add('bg-yellow-500/20', 'border-yellow-500', 'text-yellow-500');
+    
+    const pattern = document.getElementById('kit-preview-pattern');
+    if(pattern) pattern.className = "kit-pattern-overlay pattern-" + id;
+}
+
+async function saveKitDesign() {
+    const btn = document.getElementById('btn-save-kit');
+    
+    // Recuperiamo i valori attuali dai selettori colore
+    const payload = {
+        team: appState.teamName,
+        modello: appState.tempModel,
+        c1: document.getElementById('kit-c1').value,
+        c2: document.getElementById('kit-c2').value,
+        c3: document.getElementById('kit-c3').value,
+        c4: document.getElementById('kit-c4').value
+    };
+
+    btn.disabled = true;
+    btn.innerHTML = `<span class="animate-spin mr-2">↻</span> SALVATAGGIO...`;
+
+    try {
+        // Usiamo action=saveKit come definito nel tuo GAS
+        const res = await fetchData(`action=saveKit&data=${encodeURIComponent(JSON.stringify(payload))}`);
+        if(res.status === 'ok') {
+            showModal('Stile Approvato!', 'La tua nuova divisa è stata registrata nei database.', 'shield-check');
+            // Aggiorna la dashboard per vedere subito il nuovo kit mini
+            if(appState.currentView === 'home_dashboard') renderHome();
+        }
+    } catch (e) { 
+        showModal('Errore', 'Impossibile salvare il kit. Riprova.', 'x-circle'); 
+    } finally { 
+        btn.disabled = false; 
+        btn.textContent = "APPLICA DIVISA"; 
+    }
+}
+async function handleChallenge(idSfida, nuovoStato) {
+    try {
+        // Aggiungiamo un feedback visivo immediato
+        const res = await fetchData(`action=updateSfida&id=${idSfida}&stato=${nuovoStato}`);
+        
+        if(res.status === 'ok') {
+            showModal('Arena Sfide', `Hai ${nuovoStato === 'ACCETTATA' ? 'accettato' : 'rifiutato'} il duello!`, 'swords');
+            // IMPORTANTE: Forza il ricalcolo delle vite e dei punti dopo l'azione
+            await fetchData(`action=recupero`); 
+            loadSfide(appState.currentGiornata);
+        } else {
+            showModal('Errore', res.message, 'x-circle');
+        }
+    } catch(e) { 
+        showModal('Errore', 'Problema di connessione col server.', 'wifi-off'); 
+    }
+}
+
+
+async function showSfidaDetails(sData) {
+    const s = JSON.parse(decodeURIComponent(sData));
+    const cb = Date.now(); // Cache buster per dati sempre freschi
+    showModal('Dettagli Duello', renderLoader('Recupero tattiche...'), 'swords');
+
+    try {
+        // Forza il maiuscolo per sicurezza e aggiungi il timestamp
+        const p1Url = `action=getPronostici&team=${encodeURIComponent(s.sfidante.toUpperCase())}&giornata=${s.giornata}&tipo=SFIDA&_cb=${cb}`;
+        const p2Url = `action=getPronostici&team=${encodeURIComponent(s.sfidato.toUpperCase())}&giornata=${s.giornata}&tipo=SFIDA&_cb=${cb}`;
+
+        const [p1Data, p2Data] = await Promise.all([
+            fetchData(p1Url),
+            fetchData(p2Url)
+        ]);
+
+        let html = `
+            <div class="flex justify-between items-center p-3 bg-white/5 rounded-xl mb-4 border border-white/10">
+                <div class="w-[45%] text-center"><p class="text-[10px] font-black text-yellow-500 uppercase">${s.sfidante}</p></div>
+                <div class="w-[10%] text-[10px] font-bold text-gray-600">VS</div>
+                <div class="w-[45%] text-center"><p class="text-[10px] font-black text-yellow-500 uppercase">${s.sfidato}</p></div>
+            </div>
+            <div class="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+        `;
+
+        // Se almeno uno dei due ha giocato
+        if ((p1Data && p1Data.length > 0) || (p2Data && p2Data.length > 0)) {
+            // Crea lista unica delle partite
+            const allMatches = [...new Set([
+                ...(p1Data || []).map(m => m.partita), 
+                ...(p2Data || []).map(m => m.partita)
+            ])];
+            
+            allMatches.forEach(matchName => {
+                const m1 = p1Data ? p1Data.find(m => m.partita === matchName) : null;
+                const m2 = p2Data ? p2Data.find(m => m.partita === matchName) : null;
+                
+                html += `
+                    <div class="flex justify-between items-center py-2 border-b border-white/5">
+                        <div class="w-[30%] text-center font-black text-white text-xs">${m1 ? m1.pron : '-'}</div>
+                        <div class="w-[40%] text-center px-1">
+                            <p class="text-[7px] text-gray-500 uppercase font-bold leading-tight">${matchName}</p>
+                        </div>
+                        <div class="w-[30%] text-center font-black text-white text-xs">${m2 ? m2.pron : '-'}</div>
+                    </div>
+                `;
+            });
+        } else {
+            html += `
+                <div class="py-10 text-center">
+                    <p class="text-[10px] opacity-50 uppercase font-bold">Nessuna giocata SFIDA trovata</p>
+                    <p class="text-[8px] text-gray-600 mt-2">Assicurati di aver inviato i pronostici<br>usando la modalità "SFIDA" nella sezione Gioca</p>
+                </div>`;
+        }
+
+        html += `</div>`;
+        document.getElementById('modal-message').innerHTML = html;
+        lucide.createIcons();
+    } catch (e) {
+        document.getElementById('modal-message').innerHTML = "Errore nel recupero dati.";
+    }
+}
+
+// Funzione per controllare sfide pendenti in background
+async function checkIncomingChallenges() {
+    if (!appState.isLoggedIn) return;
+    try {
+        const sfideData = await fetchData(`action=getSfide&giornata=${appState.currentGiornata}&cb=${Date.now()}`);
+        const sfidaInArrivo = sfideData.find(s => s.sfidato === appState.teamName && s.stato === 'IN ATTESA');
+        
+        if (sfidaInArrivo) {
+            // Se trova una sfida, fa pulsare l'icona "Sfide" nel menu
+            const navSfide = document.getElementById('nav-sfide');
+            navSfide.classList.add('animate-bounce');
+            navSfide.querySelector('div').classList.add('bg-red-500/20', 'border-red-500');
+            
+            // Opzionale: mostra un piccolo avviso se siamo in Home
+            if(appState.currentView === 'home_dashboard' && !document.getElementById('alert-sfida-box')) {
+                renderHome(); // Ricarica la home per mostrare il banner giallo
+            }
+        }
+    } catch (e) { console.log("Errore check sfide"); }
+}
+
+// Avvia il controllo ogni 30 secondi
+setInterval(checkIncomingChallenges, 30000);
+
+function renderCompactPodium(ranking) {
+    if(!ranking || !ranking.length) return '';
+    const top3 = ranking.slice(0, 3);
+    const heights = ['h-16', 'h-10', 'h-8']; // 1°, 2°, 3°
+    const labels = ['1°', '2°', '3°'];
+    const colors = ['bg-yellow-500/30 border-yellow-500', 'bg-slate-400/20 border-slate-400', 'bg-orange-800/20 border-orange-800'];
+    
+    // Ordine visuale: 2° - 1° - 3°
+    const visualOrder = [1, 0, 2]; 
+    
+    return visualOrder.map(idx => {
+        const u = top3[idx];
+        if(!u) return `<div class="flex-1"></div>`;
+        return `
+            <div class="flex flex-col items-center flex-1 min-w-0">
+                <span class="text-[7px] font-bold text-white truncate w-full text-center mb-1 uppercase">${u.team}</span>
+                <div class="${colors[idx]} border-b-2 w-full ${heights[idx]} flex items-center justify-center rounded-t-lg">
+                    <span class="text-[10px] font-black text-white">${labels[idx]}</span>
+                </div>
+            </div>`;
+    }).join('');
+}
+
+async function shareWinnersOnWhatsApp(event) {
+    const day = document.getElementById('waDaySelector').value;
+    const btn = event.currentTarget;
+    const originalContent = btn.innerHTML;
+    
+    try {
+        btn.innerHTML = `<span class="animate-spin text-lg">↻</span>`;
+        const [ranking, tutteLeVite] = await Promise.all([
+            fetchData(`action=getClassifica&giornata=${day}`),
+            fetchData(`action=getClassificaVite`)
+        ]);
+
+        let msg = `🏆 *FANTASCHEDINA Giornata${day}* 🏆\n\n`;
+        msg += `🥇 *${ranking[0]?.team || '-'}*: ${ranking[0]?.punti || 0} PT\n`;
+        if(ranking[1]) msg += `🥈 *${ranking[1].team}*: ${ranking[1].punti} PT\n`;
+        if(ranking[2]) msg += `🥉 *${ranking[2].team}*: ${ranking[2].punti} PT\n\n`;
+
+        const morti = (tutteLeVite || []).filter(v => Number(v.vite) <= 0);
+        if (morti.length > 0) {
+            msg += `💀 *CIMITERO* 💀\n`;
+            morti.forEach(m => msg += `⚰️ *${m.team.toUpperCase()}*\n`);
+        }
+        
+        msg += `\n📲 _Complimenti, hai vinto 20 crediti, vi ricordo che trovate la classifica completa in App_`;
+        
+        btn.innerHTML = originalContent;
+        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    } catch (e) {
+        btn.innerHTML = originalContent;
+        alert("Errore invio.");
+    }
+}
+
+
+function renderElitePodium(ranking) {
+    if(!ranking || !ranking.length) return '';
+    const top3 = ranking.slice(0, 3);
+    
+    // Ordine visivo: 2° posto (sinistra), 1° posto (centro), 3° posto (destra)
+    const visualOrder = [1, 0, 2]; 
+    const configs = {
+        0: { h: 'h-24', color: 'border-yellow-500', glow: 'shadow-[0_-5px_15px_rgba(234,179,8,0.2)]', medal: '🥇' },
+        1: { h: 'h-16', color: 'border-slate-400', glow: '', medal: '🥈' },
+        2: { h: 'h-12', color: 'border-orange-700', glow: '', medal: '🥉' }
+    };
+
+    return visualOrder.map(idx => {
+        const u = top3[idx];
+        if(!u) return `<div class="w-1/3"></div>`; // Mantiene lo spazio vuoto se mancano giocatori
+        
+        const conf = configs[idx];
+        const isFirst = idx === 0;
+        
+        return `
+            <div class="flex flex-col items-center w-1/3 min-w-0">
+                <div class="text-2xl mb-1 ${isFirst ? 'animate-bounce' : ''}">${conf.medal}</div>
+                
+                <div class="w-full text-center mb-2 px-1 overflow-hidden">
+                    <p class="text-[9px] font-black text-white uppercase truncate leading-tight">${u.team}</p>
+                    <p class="text-[10px] font-bold text-yellow-500">${u.punti} PT</p>
+                </div>
+                
+                <div class="w-full ${conf.h} bg-gradient-to-t from-white/10 to-white/20 border-t-2 ${conf.color} ${conf.glow} rounded-t-xl flex items-center justify-center relative">
+                    <span class="text-2xl font-black text-white/5 italic select-none">${idx + 1}</span>
+                </div>
+            </div>`;
+    }).join('');
+}
+
+// --- MOTORE INTELLIGENZA ARTIFICIALE GEMINI ---
+
+async function showAISuggestion(casa, ospite) {
+    showModal(
+        `Analisi Maghetto`, 
+        `<div class="flex flex-col items-center gap-4 py-8">
+            <div class="w-10 h-10 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+            <p class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400">Consultazione Database...</p>
+         </div>`, 
+        "database"
+    );
+
+    try {
+        // USIAMO fetchData (che gestisce il JSONP) invece di fetch()
+        const data = await fetchData(`action=getAI&casa=${encodeURIComponent(casa)}&ospite=${encodeURIComponent(ospite)}`);
+
+        if (data && data.result) {
+            const formattedResult = data.result.replace(/\n/g, '<br>');
+            const contentHtml = `
+               <div class="space-y-4 animate-in fade-in zoom-in duration-300">
+                    <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/10">
+                        <div class="text-center flex-1">
+                            <img src="${LOGHI[casa] || ''}" class="h-10 w-10 mx-auto mb-2 object-contain bg-white rounded-full p-1">
+                            <span class="text-[10px] font-black uppercase text-white">${casa}</span>
+                        </div>
+                        <div class="px-4 text-blue-500 font-black italic text-xl opacity-50">VS</div>
+                        <div class="text-center flex-1">
+                            <img src="${LOGHI[ospite] || ''}" class="h-10 w-10 mx-auto mb-2 object-contain bg-white rounded-full p-1">
+                            <span class="text-[10px] font-black uppercase text-white">${ospite}</span>
+                        </div>
+                    </div>
+                    <div class="bg-blue-500/10 p-5 rounded-2xl border border-blue-500/20 text-gray-200 text-sm leading-relaxed">
+                        ${formattedResult}
+                    </div>
+                </div>`;
+            showModal(`Analisi Tecnica`, contentHtml, "sparkles");
+        }
+    } catch (error) {
+        showModal("Errore", "Il Maghetto non risponde al momento.");
+    }
+}
+
+function toggleMagicMode() {
+    appState.isMagicMode = !appState.isMagicMode;
+    
+    if (appState.isMagicMode) {
+        // Effetto compilazione automatica (Rating casuale simulato o logica 1X2)
+        appState.matches.forEach(m => {
+            const key = `match_${m.giornata}_${m.casa}_${m.ospite}`.replace(/\s/g, '_');
+            const opzioni = ['1', 'X', '2'];
+            // Logica: 50% vince casa, 30% pareggio, 20% ospite (esempio rating)
+            const r = Math.random();
+            const scelta = r < 0.35 ? '1' : (r < 0.70 ? 'X' : '2');
+            
+            appState.predictions[key] = scelta;
+            localStorage.setItem(key, scelta);
+        });
+        showModal('Magia Applicata!', 'Il Maghetto ha analizzato i dati e compilato la schedina per te.', 'wand-2');
+    }
+    
+    renderMatches(); // Ricarica la vista per applicare i colori
+}
+
+// Modifica la funzione loadMatches originale aggiungendo il controllo classe 
+// (Cerca la riga dove generi la card del match e aggiungi ${appState.isMagicMode ? 'magic-card' : ''})
+
+
+
+function showRegolamento() {
+    const regolamentoHTML = `
+        <div class="regolamento-scroll space-y-6 text-left">
+            <div class="bg-yellow-500/10 border-l-2 border-yellow-500 p-3 mb-4">
+                <p class="text-[11px] leading-tight text-yellow-200/90 uppercase font-black tracking-tighter">
+                    🏆 REGOLAMENTO FANTASCHEDINA 2026
+                </p>
+            </div>
+            
+            <section>
+                <h4 class="text-yellow-500 font-black text-[12px] uppercase mb-1 flex items-center gap-2">
+                    ⚽ 1. LA GIOCATA (REGOLARE)
+                </h4>
+                <div class="text-[11px] leading-relaxed text-gray-300 space-y-1">
+                    <p>Ogni giornata di campionato, ogni utente deve inserire i propri pronostici per le partite in calendario.</p>
+                    <p><b class="text-white">• Punteggio:</b> Ogni pronostico esatto (1, X o 2) assegna 10 punti.</p>
+                    <p><b class="text-white">• Vincoli:</b> È possibile inviare una sola giocata "REGOLARE" per giornata. Una volta inviata, il sistema bloccherà ulteriori modifiche.</p>
+                </div>
+            </section>
+
+            <section>
+                <h4 class="text-yellow-500 font-black text-[12px] uppercase mb-1 flex items-center gap-2">
+                    🪄 2. MODALITÀ MAGHETTO
+                </h4>
+                <div class="text-[11px] leading-relaxed text-gray-300 space-y-1">
+                    <p>Sei di corsa o sei indeciso? Usa il potere del Maghetto!</p>
+                    <p><b class="text-white">• Come funziona:</b> Cliccando sul tasto "Modalità Maghetto", il sistema utilizzerà l'intelligenza artificiale e i Rating statistici per compilare istantaneamente tutti i pronostici al posto tuo.</p>
+                    <p><b class="text-white">• Revisione:</b> Una volta comparsi i segni, puoi comunque modificarli manualmente prima dell'invio definitivo.</p>
+                </div>
+            </section>
+
+            <section>
+                <h4 class="text-yellow-500 font-black text-[12px] uppercase mb-1 flex items-center gap-2">
+                    💔 3. IL SISTEMA DELLE VITE (SURVIVAL)
+                </h4>
+                <div class="text-[11px] leading-relaxed text-gray-300 space-y-1">
+                    <p>La tua sopravvivenza dipende dalla tua precisione. Il sistema calcola il saldo delle "Vite" basandosi sulla soglia del 5.</p>
+                    <p><b class="text-white">• Soglia Salvezza:</b> Devi indovinare almeno 5 pronostici a giornata.</p>
+                    <p><b class="text-white">• Perdita Vite:</b> Se ne indovini meno di 5, perdi 1 vita per ogni errore sotto la soglia.</p>
+                    <p><b class="text-white">• Guadagno Vite:</b> Se ne indovini più di 5, guadagni 1 vita per ogni pronostico extra centrato.</p>
+                    <p><b class="text-white">• Bonus Partenza:</b> Ogni nuovo utente inizia con 50 vite.</p>
+                </div>
+            </section>
+
+            <section>
+                <h4 class="text-yellow-500 font-black text-[12px] uppercase mb-1 flex items-center gap-2">
+                    ⚔️ 4. LE SFIDE (HEAD-TO-HEAD)
+                </h4>
+                <div class="text-[11px] leading-relaxed text-gray-300 space-y-1">
+                    <p>Oltre alla classifica generale, puoi sfidare direttamente un altro utente.</p>
+                    <p><b class="text-white">• Invio Sfida:</b> Lancia un guanto di sfida a un avversario specifico.</p>
+                    <p><b class="text-white">• Esito:</b> Al termine della giornata, vince chi ha totalizzato più punti.</p>
+                    <p><b class="text-white">• Premio:</b> Vincere una sfida può assegnare vite bonus.</p>
+                </div>
+            </section>
+
+            <section>
+                <h4 class="text-yellow-500 font-black text-[12px] uppercase mb-1 flex items-center gap-2">
+                    📊 5. RATING E ANALISI AI
+                </h4>
+                <div class="text-[11px] leading-relaxed text-gray-300">
+                    Il sistema monitora le prestazioni reali: Rating basati su forma recente e algoritmi che segnalano Dominio Interno o Superiorità Ospite.
+                </div>
+            </section>
+
+            <section class="pb-4">
+                <h4 class="text-yellow-500 font-black text-[12px] uppercase mb-1 flex items-center gap-2">
+                    👕 6. KIT E PERSONALIZZAZIONE
+                </h4>
+                <div class="text-[11px] leading-relaxed text-gray-300">
+                    Crea la tua identità visiva configurando il tuo Kit Gara (modelli e colori personalizzati) che ti rappresenterà nelle classifiche.
+                </div>
+            </section>
+        </div>
+    `;
+    
+    showModal('📜 REGOLAMENTO COMPLETO', regolamentoHTML, 'star');
+}
+
+
+
+
+window.onload = () => { renderView(); lucide.createIcons(); }
+</script>
+</body>
+</html>
+</body>
+</html>
